@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::group(['prefix' => 'master'], function() {
+    Route::get('jam-kerja',"JamKerjaController@index");
+});
