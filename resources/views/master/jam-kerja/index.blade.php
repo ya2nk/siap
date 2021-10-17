@@ -41,7 +41,7 @@
 
 @section('modal')
 	
-<div class="modal fade" id="myModal">
+<div class="modal fade" id="myModal" @onselectdate="alert($event.detail)">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
 
@@ -56,7 +56,7 @@
 		<div class="form-group row">
 			<label class="col-md-3">Tanggal</label>
 			<div class="col-md-3">
-				@include('components.datepicker')
+				@include('components.datepicker',['model'=>'form.tanggal','id'=>'tanggal','event'=>'onselectdate'])
 			</div>
 		</div>
       </div>
@@ -76,6 +76,9 @@
 <script>
 	document.addEventListener('alpine:init',() => {
 		Alpine.data("content",() => ({
+			form:{
+				tanggal:"{{ date('Y-m-d') }}"
+			},
 			init() {
 				this.table = $('#datatable').DataTable();
 				$('.datepicker').datepicker({
