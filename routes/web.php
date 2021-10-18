@@ -16,5 +16,9 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => 'master'], function() {
-    Route::get('jam-kerja',"JamKerjaController@index");
+    Route::group(['prefix' => 'jam-kerja'], function() {
+        Route::get('/',"JamKerjaController@index");
+        Route::post('data',"JamKerjaController@data");
+        Route::post('save',"JamKerjaController@save");
+    });
 });

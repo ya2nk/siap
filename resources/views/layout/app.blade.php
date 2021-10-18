@@ -15,8 +15,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Main CSS-->
     <link rel="stylesheet" type="text/css" href="{{ asset('vali/css/main.css') }}">
+	 <link rel="stylesheet" type="text/css" href="{{ asset('plugins/awesome-notifications/dist/style.css') }}">
     <!-- Font-icon css-->
     <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome/css/font-awesome.min.css') }}">
   </head>
@@ -35,23 +37,56 @@
     <!-- The javascript plugin to display page loading on top-->
     <script src="{{ asset('vali/js/plugins/pace.min.js') }}"></script>
 	<script src="{{ asset('js/moment.js') }}"></script>
+	
+	<script src="{{ asset('js/axios.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('vali/js/plugins/jquery.dataTables.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vali/js/plugins/dataTables.bootstrap.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('vali/js/plugins/bootstrap-datepicker.min.js') }}"></script>
+	<script src="{{ asset('js/jquery-validation/jquery.validate.min.js') }}"></script>
 	<script src="{{ asset('js/alpine-extends.js') }}" defer></script>
 	<script src="{{ asset('js/alpine.min.js') }}" defer></script>
+	<script src="{{ asset('js/inputmask/min/jquery.inputmask.bundle.min.js') }}"></script>
+	<script type="text/javascript" src="{{ asset('plugins/awesome-notifications/dist/index.var.js') }}"></script>
 	
     @stack('scripts')
     <script>
 		document.addEventListener('alpine:init',() => {
 			Alpine.data("main",() => ({
 				table:null,
+				notify:null,
 				init() {
+					axios.defaults.headers.common = {
+						'X-Requested-With': 'XMLHttpRequest',
+						'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+					};
 					
-					/* $('.btn-datepicker').on('click',function(e){
-						$(this).parent().parent().find('.datepicker').datepicker('show');
-						console.log($(this).parent());
-					}) */
+					$.ajaxSetup({
+						headers: {
+							'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+						}
+					});
+					
+					$.validator.setDefaults({
+						errorElement: "span",
+						errorPlacement: function (error, element) {
+							error.addClass('invalid-feedback');
+							element.closest('div').append(error);
+						},
+						highlight: function (element, errorClass, validClass) {
+							$(element).addClass('is-invalid');
+						},
+						unhighlight: function (element, errorClass, validClass) {
+							$(element).removeClass('is-invalid');
+						}
+					});
+					
+					$('[data-mask]').inputmask();
+					
+					this.notify = new AWN({
+						durations:{
+							global:2000
+						}
+					});
 				}
 			}));
 		});
