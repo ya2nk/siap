@@ -15,10 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::group(['prefix' => 'master'], function() {
-    Route::group(['prefix' => 'jam-kerja'], function() {
-        Route::get('/',"JamKerjaController@index");
-        Route::post('data',"JamKerjaController@data");
-        Route::post('save',"JamKerjaController@save");
+Route::get('/login','LoginController@index')->name('login');
+
+Route::group(['middleware' => 'auth'],function(){
+    Route::group(['prefix' => 'master'], function() {
+        Route::group(['prefix' => 'jam-kerja'], function() {
+            Route::get('/',"JamKerjaController@index");
+            Route::post('data',"JamKerjaController@data");
+            Route::post('save',"JamKerjaController@save");
+        });
     });
+
 });
