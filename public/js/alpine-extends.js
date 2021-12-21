@@ -26,6 +26,8 @@ document.addEventListener('alpine:init', () => {
 	});
 	
 	
+	
+	
 	Alpine.magic('selectData', (el) => {
 		return attr => el.options[el.selectedIndex].getAttribute("data-"+attr)
 	});

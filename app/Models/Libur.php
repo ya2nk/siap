@@ -3,8 +3,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JamKerja extends Model
+class Libur extends Model
 {
-	protected $table = "tb_jam_kerja";
+	protected $table = "tb_hari_libur";
 	protected $guarded = [];
 } 

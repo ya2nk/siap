@@ -32,7 +32,6 @@
                     <tr>
 					  <th>Aksi</th>
                       <th>Nama</th>
-                      <th>Kode</th>
                       <th>Chekin Start</th>
                       <th>Chekin End</th>
                       <th>Chekout Start</th>
@@ -41,6 +40,7 @@
                       <th>Istirahat End</th>
 					  <th>Jam Masuk</th>
                       <th>Jam Pulang</th>
+					  <th>CrossDay</th>
                     </tr>
                   </thead>
 				</table>
@@ -70,12 +70,6 @@
 				<label class="col-md-3">Nama Jam Kerja</label>
 				<div class="col-md-6">
 					<input type="text" class="form-control" x-model="form.name" required>
-				</div>
-			</div>
-			<div class="form-group row">
-				<label class="col-md-3">Kode</label>
-				<div class="col-md-6">
-					<input type="text" class="form-control" x-model="form.code">
 				</div>
 			</div>
 			<div class="form-group row">
@@ -118,6 +112,14 @@
 					<input type="text" class="form-control" x-model="form.jam_pulang" data-inputmask='"mask": "99:99"' data-mask>
 				</div>
 			</div>
+			<div class="form-group row">
+				<div class="col-md-3">
+					<div class="form-check">
+						<input type="checkbox" class="form-check-input" id="exampleCheck1" x-model="form.is_crossday">
+						<label class="form-check-label" for="exampleCheck1">CrossDay</label>
+					</div>
+				</div>
+			</div>
 		</form>
       </div>
 
@@ -139,7 +141,6 @@
 			form:{
 				id:0,
 				name:"",
-				code:"",
 				checkin_start:"00:00",
 				checkin_end:"00:00",
 				checkout_start:"00:00",
@@ -148,8 +149,10 @@
 				istirahat_end:"00:00",
 				jam_masuk:"00:00",
 				jam_pulang:"00:00",
+				is_crossday:0,
 			},
 			init() {
+				
 				this.table = $('#datatable').DataTable({
 					serverSide:true,
 					processing:true,
@@ -162,37 +165,74 @@
 					},
 					columns:[
 						{data:"aksi",orderable:false,render:function(data,type,row){
-							return "test";
+							var button = "";
+								button += "<button @click='openForm("+row.id+")'><i class='fa fa-edit'></i></button>"
+							return button;
 						}},
 						{data:"name"},
-						{data:"code"},
-						{data:"checkin_start"},
-						{data:"checkin_end"},
-						{data:"checkout_start"},
-						{data:"checkout_end"},
-						{data:"istirahat_start"},
-						{data:"istirahat_end"},
-						{data:"jam_masuk"},
-						{data:"jam_pulang"},
+						{data:"checkin_start",render: data =>  this.formatJam(data)},
+						{data:"checkin_end",render: data =>  this.formatJam(data)},
+						{data:"checkout_start",render: data =>  this.formatJam(data)},
+						{data:"checkout_end",render: data =>  this.formatJam(data)},
+						{data:"istirahat_start",render: data =>  this.formatJam(data)},
+						{data:"istirahat_end",render: data =>  this.formatJam(data)},
+						{data:"jam_masuk",render: data =>  this.formatJam(data)},
+						{data:"jam_pulang",render: data =>  this.formatJam(data)},
+						{data:'is_crossday'}
 					]
 				});
 				
 				
 			},
 			openForm(id) {
+				//this.resetForm();
+				if (id != 0) {
+					$.post("{{ url('master/jam-kerja/row') }}",{id:id}).done(resp => {
+						for (k in resp) {
+							if (!this.inArray(k,["name","is_crossday"])) {
+								resp[k] = this.formatJam(resp[k]);
+							}
+						}
+						
+						this.form = resp;
+					}).fail(err => {
+						console.log(err);
+					})
+				}
 				$('#myModal').modal('show');
+				
 			},
 			doSave() {
 				var form = $('#form');
 					form.validate();
-					
-					
-				
 				if (form.valid()) {
-					axios.post("{{ url('master/jam-kerja/save') }}",this.form).then( resp => {
-						console.log(resp)
-					})
+					$.post("{{ url('master/jam-kerja/save') }}",this.form).done( resp => {
+						if (resp.error == false) {
+							this.notify.success("Data Berhasil Ditambahkan/Diperbaharui")
+							$('#myModal').modal('hide');
+							this.table.draw();
+						} else {
+							this.notify.alert(resp.message)
+						}
+					}).fail(err => {
+						console.log(err)
+					});
 				}
+			},
+			resetForm(){
+				this.form = {
+					id:0,
+					name:"",
+					checkin_start:"00:00",
+					checkin_end:"00:00",
+					checkout_start:"00:00",
+					checkout_end:"00:00",
+					istirahat_start:"00:00",
+					istirahat_end:"00:00",
+					jam_masuk:"00:00",
+					jam_pulang:"00:00",
+					is_crossday:0,
+				};
 			}
 		}));
 	});

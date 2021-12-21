@@ -38,7 +38,7 @@
     <script src="{{ asset('vali/js/plugins/pace.min.js') }}"></script>
 	<script src="{{ asset('js/moment.js') }}"></script>
 	
-	<script src="{{ asset('js/axios.min.js') }}"></script>
+	
 	<script type="text/javascript" src="{{ asset('vali/js/plugins/jquery.dataTables.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vali/js/plugins/dataTables.bootstrap.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('vali/js/plugins/bootstrap-datepicker.min.js') }}"></script>
@@ -55,10 +55,6 @@
 				table:null,
 				notify:null,
 				init() {
-					axios.defaults.headers.common = {
-						'X-Requested-With': 'XMLHttpRequest',
-						'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-					};
 					
 					$.ajaxSetup({
 						headers: {
@@ -80,13 +76,31 @@
 						}
 					});
 					
-					$('[data-mask]').inputmask();
+					$('[data-mask]').inputmask({ "oncomplete": function(){ this.dispatchEvent(new CustomEvent("input",{ detail: this.value, bubbles: true })); }});
 					
 					this.notify = new AWN({
 						durations:{
 							global:2000
 						}
 					});
+				},
+				formatJam(value) {
+					var m = Math.floor((value % 3600) /60);
+					var s = value % 60;
+					if(m>=24) {
+						m = '0' + (m-24);
+					} else {
+						m = m < 10 ? '0' + m : m;
+					}
+					s = s < 10 ? '0' + s : s;
+					return m+':'+s;
+				},
+				inArray(needle, haystack) {
+					var length = haystack.length;
+					for(var i = 0; i < length; i++) {
+						if(haystack[i] == needle) return true;
+					}
+					return false;
 				}
 			}));
 		});
