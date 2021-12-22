@@ -25,7 +25,7 @@ class CreateJamKerja extends Migration
             $table->integer('istirahat_start');
             $table->integer('istirahat_end');
             $table->integer('jam_pulang');
-            $table->integer('crossday');
+            $table->integer('is_crossday');
             $table->timestamps();
         });
     }
